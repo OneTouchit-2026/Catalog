@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>NFC Cards | Премиум Каталог</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Темная тема (по умолчанию) */
+            --bg: #0a0a0c;
+            --surface: #141418;
+            --surface-hover: #1c1c21;
+            --text-primary: #ffffff;
+            --text-secondary: #8e8e9e;
+            --accent-1: #0066ff;
+            --accent-2: #7c3aed;
+            --accent-3: #22c55e;
+            --glass-bg: rgba(20, 20, 24, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --gradient-bg1: rgba(0, 102, 255, 0.15);
+            --gradient-bg2: rgba(124, 58, 237, 0.15);
+        }
+
+        html.light-theme {
+            --bg: #f5f5f7;
+            --surface: #ffffff;
+            --surface-hover: #f0f0f2;
+            --text-primary: #1d1d1f;
+            --text-secondary: #6f6f77;
+            --accent-1: #0066ff;
+            --accent-2: #7c3aed;
+            --accent-3: #22c55e;
+            --glass-bg: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(0, 0, 0, 0.08);
+            --gradient-bg1: rgba(0, 102, 255, 0.08);
+            --gradient-bg2: rgba(124, 58, 237, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(ellipse at 10% 20%, var(--gradient-bg1) 0%, transparent 40%),
+                radial-gradient(ellipse at 90% 80%, var(--gradient-bg2) 0%, transparent 40%);
+            background-attachment: fixed;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        /* Кнопка переключения темы в ЛЕВОМ верхнем углу */
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+        }
+
+        /* Кнопка переключения языка в ПРАВОМ верхнем углу */
+        .lang-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+
+        .theme-btn,
+        .lang-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: var(--surface);
+            border: 1.5px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'Inter', monospace;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .theme-btn:hover,
+        .lang-btn:hover {
+            border-color: var(--accent-1);
+            background: rgba(0, 102, 255, 0.1);
+        }
+
+        .theme-icon,
+        .lang-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 20px;
+            width: 100%;
+            flex: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: fadeDown 0.8s ease-out forwards;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(36px, 6vw, 64px);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #fff 0%, #a5a5b4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        html.light-theme h1 {
+            background: linear-gradient(135deg, #1d1d1f 0%, #555 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: clamp(16px, 2vw, 20px);
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Grid Layout */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 80px;
+        }
+
+        /* Card Component */
+        .card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 24px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            display: flex;
+            flex-direction: column;
+            animation: fadeUp 0.6s ease-out both;
+        }
+
+        .card:nth-child(1) { animation-delay: 0.1s; border-top-color: rgba(0, 102, 255, 0.3); }
+        .card:nth-child(2) { animation-delay: 0.2s; border-top-color: rgba(124, 58, 237, 0.3); }
+        .card:nth-child(3) { animation-delay: 0.3s; border-top-color: rgba(34, 197, 94, 0.3); }
+        .card:nth-child(4) { animation-delay: 0.4s; border-top-color: rgba(236, 72, 153, 0.3); }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at center, rgba(255,255,255,0.05) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
+
+        .card:hover {
+            border-color: var(--accent-1);
+            background: var(--surface-hover);
+            transform: translateY(-10px);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card-preview {
+            width: 100%;
+            height: 200px;
+            margin: -24px -24px 16px -24px;
+            border-radius: 20px 20px 0 0;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(0,102,255,0.1), rgba(124,58,237,0.1));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .mockup-shape {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            font-weight: 600;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        html.light-theme .mockup-shape {
+            color: rgba(0, 0, 0, 0.4);
+        }
+
+        /* Стили миниатюр для каждого варианта */
+        .preview-dark {
+            background: linear-gradient(135deg, #1b2838 0%, #0a0a0c 100%);
+        }
+
+        .preview-light {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .preview-neon {
+            background: linear-gradient(135deg, #0a0a0c 0%, #1a0033 100%);
+        }
+
+        .preview-women {
+            background: linear-gradient(135deg, #fff5f7 0%, #fce7f3 100%);
+        }
+
+        /* Элементы симуляции интерфейса */
+        .preview-item {
+            position: absolute;
+            border-radius: 8px;
+        }
+
+        .preview-circle {
+            border-radius: 50%;
+        }
+
+        .preview-text {
+            border-radius: 4px;
+        }
+
+        /* Неоновые эффекты для neon-game */
+        .neon-glow {
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.8), 0 0 40px rgba(255, 0, 255, 0.6);
+        }
+
+        .card-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-tag {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .card-desc {
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            flex: 1;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 16px;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .card-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            background: rgba(0, 102, 255, 0.1);
+            color: var(--accent-1);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover .card-arrow {
+            background: var(--accent-1);
+            color: white;
+            transform: translateX(4px);
+        }
+
+        /* Contact Section */
+        .contact-section {
+            text-align: center;
+            padding: 60px 20px;
+            background: var(--surface);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            margin-top: 40px;
+        }
+
+        .contact-title {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(28px, 4vw, 48px);
+            font-weight: 800;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #fff 0%, #a5a5b4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        html.light-theme .contact-title {
+            background: linear-gradient(135deg, #1d1d1f 0%, #555 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .contact-desc {
+            font-size: 16px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 32px;
+            line-height: 1.6;
+        }
+
+        .contact-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+        }
+
+        .btn-tg {
+            background: linear-gradient(135deg, rgba(0, 136, 204, 0.2), rgba(0, 102, 255, 0.2));
+            border-color: rgba(0, 102, 255, 0.3);
+        }
+
+        .btn-tg:hover {
+            background: linear-gradient(135deg, rgba(0, 136, 204, 0.4), rgba(0, 102, 255, 0.4));
+            border-color: #0066ff;
+            transform: translateY(-2px);
+        }
+
+        .btn-phone {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(168, 85, 247, 0.2));
+            border-color: rgba(124, 58, 237, 0.3);
+        }
+
+        .btn-phone:hover {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.4), rgba(168, 85, 247, 0.4));
+            border-color: #7c3aed;
+            transform: translateY(-2px);
+        }
+
+        /* Animations */
+        @keyframes fadeDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .container {
+                padding: 40px 16px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .theme-btn,
+            .lang-btn {
+                padding: 6px 10px;
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Theme Switcher -->
+<div class="theme-switcher">
+    <button class="theme-btn" onclick="toggleTheme()" id="themeBtn" title="Переключить тему">
+        <span class="theme-icon"></span>
+        <span id="themeText">LIGHT</span>
+    </button>
+</div>
+
+<!-- Language Switcher -->
+<div class="lang-switcher">
+    <button class="lang-btn" onclick="toggleLanguage()" id="langBtn" title="Переключить язык">
+        <span id="langText">UZB</span>
+        <span class="lang-dot"></span>
+    </button>
+</div>
+
+<div class="container">
+    <header>
+        <span class="badge" id="badge">Каталог Дизайнов</span>
+        <h1 id="title">NFC Визитки</h1>
+        <p class="subtitle" id="subtitle">Выберите современный дизайн для вашей электронной визитки. Все варианты легко кастомизируются под ваши данные (фото, ссылки, цвета).</p>
+    </header>
+
+    <div class="grid">
+        <!-- Variant 1: Dark & Neon -->
+        <a href="https://e1tad0r.github.io/Eltad0r/" target="_blank" class="card">
+            <div class="card-preview">
+                <div class="mockup-shape preview-dark">
+                    <div style="position:absolute; top:20px; left:50%; transform:translateX(-50%); width:50px; height:50px; border-radius:50%; background:rgba(0,102,255,0.3); border:2px solid rgba(0,102,255,0.5);"></div>
+                    <div style="position:absolute; top:85px; left:20px; right:20px; height:8px; border-radius:4px; background:linear-gradient(90deg, rgba(0,102,255,0.4), rgba(124,58,237,0.4));"></div>
+                    <div style="position:absolute; top:100px; left:20px; right:20px; height:6px; border-radius:3px; background:rgba(255,255,255,0.1);"></div>
+                    <div style="position:absolute; top:115px; left:20px; right:20px; height:6px; border-radius:3px; background:rgba(255,255,255,0.05);"></div>
+                    <div style="position:absolute; top:135px; left:20px; width:60px; height:4px; border-radius:2px; background:rgba(0,102,255,0.3);"></div>
+                    <div style="position:absolute; bottom:20px; right:20px; width:40px; height:40px; border-radius:8px; background:rgba(124,58,237,0.2); border:1px solid rgba(124,58,237,0.4);"></div>
+                </div>
+            </div>
+            <div class="card-content">
+                <div class="card-tag" id="tag1">Dark & Neon</div>
+                <h3 class="card-title" id="title1">Основной вариант</h3>
+                <p class="card-desc" id="desc1">Строгий темный дизайн со стеклянным эффектом и градиентными свечениями. Идеален для руководителей.</p>
+                <div class="card-footer">
+                    <span class="card-tag">HTML / CSS</span>
+                    <div class="card-arrow">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </div>
+                </div>
+            </div>
+        </a>
+
+        <!-- Variant 2: Classic Light -->
+        <a href="https://e1tad0r.github.io/azamat-nfcCard/" target="_blank" class="card">
+            <div class="card-preview">
+                <div class="mockup-shape preview-light">
+                    <div style="position:absolute; top:20px; left:50%; transform:translateX(-50%); width:50px; height:50px; border-radius:50%; background:rgba(0,102,255,0.15); border:2px solid rgba(0,102,255,0.3);"></div>
+                    <div style="position:absolute; top:85px; left:20px; right:20px; height:8px; border-radius:4px; background:linear-gradient(90deg, rgba(0,102,255,0.2), rgba(124,58,237,0.2));"></div>
+                    <div style="position:absolute; top:100px; left:20px; right:20px; height:6px; border-radius:3px; background:rgba(0,0,0,0.08);"></div>
+                    <div style="position:absolute; top:115px; left:20px; right:20px; height:6px; border-radius:3px; background:rgba(0,0,0,0.04);"></div>
+                    <div style="position:absolute; top:135px; left:20px; width:60px; height:4px; border-radius:2px; background:rgba(0,102,255,0.15);"></div>
+                    <div style="position:absolute; bottom:20px; right:20px; width:40px; height:40px; border-radius:8px; background:rgba(124,58,237,0.1); border:1px solid rgba(124,58,237,0.2);"></div>
+                </div>
+            </div>
+            <div class="card-content">
+                <div class="card-tag" id="tag2">Classic Light</div>
+                <h3 class="card-title" id="title2">Вариант 2</h3>
+                <p class="card-desc" id="desc2">Яркий светлый вариант для тех, кто предпочитает классику и легкость восприятия.</p>
+                <div class="card-footer">
+                    <span class="card-tag">HTML / CSS</span>
+                    <div class="card-arrow">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </div>
+                </div>
+            </div>
+        </a>
+
+        <!-- Variant 3: Neon Game -->
+        <a href="https://onetouchit-2026.github.io/neon-game/" target="_blank" class="card">
+            <div class="card-preview">
+                <div class="mockup-shape preview-neon">
+                    <div style="position:absolute; top:20px; left:50%; transform:translateX(-50%); width:50px; height:50px; border-radius:50%; background:rgba(0,255,255,0.2); border:2px solid rgba(0,255,255,0.6); box-shadow: 0 0 20px rgba(0,255,255,0.5);"></div>
+                    <div style="position:absolute; top:85px; left:20px; right:20px; height:8px; border-radius:4px; background:linear-gradient(90deg, rgba(0,255,255,0.4), rgba(255,0,127,0.4)); box-shadow: 0 0 10px rgba(0,255,255,0.4);"></div>
+                    <div style="position:absolute; top:100px; left:20px; right:20px; height:6px; border-radius:3px; background:rgba(255,0,255,0.15); box-shadow: 0 0 8px rgba(255,0,255,0.3);"></div>
+                    <div style="position:absolute; top:115px; left:20px; right:20px; height:6px; border-radius:3px; background:rgba(0,255,255,0.08);"></div>
+                    <div style="position:absolute; top:135px; left:20px; width:60px; height:4px; border-radius:2px; background:rgba(0,255,255,0.3); box-shadow: 0 0 6px rgba(0,255,255,0.4);"></div>
+                    <div style="position:absolute; bottom:20px; right:20px; width:40px; height:40px; border-radius:8px; background:rgba(255,0,255,0.15); border:2px solid rgba(255,0,127,0.4); box-shadow: 0 0 15px rgba(255,0,127,0.3);"></div>
+                </div>
+            </div>
+            <div class="card-content">
+                <div class="card-tag" id="tag3">Vibrant Creative</div>
+                <h3 class="card-title" id="title3">Вариант 3</h3>
+                <p class="card-desc" id="desc3">Смелый, градиентный дизайн с неоновыми эффектами. Подчеркнет вашу креативность и современный подход.</p>
+                <div class="card-footer">
+                    <span class="card-tag">HTML / CSS</span>
+                    <div class="card-arrow">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </div>
+                </div>
+            </div>
+        </a>
+
+        <!-- Variant 4: Women's Style -->
+        <a href="https://onetouchit-2026.github.io/womens-style-card/" target="_blank" class="card">
+            <div class="card-preview">
+                <div class="mockup-shape preview-women">
+                    <div style="position:absolute; top:20px; left:50%; transform:translateX(-50%); width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg, rgba(236,72,153,0.2), rgba(168,85,247,0.2)); border:2px solid rgba(236,72,153,0.3);"></div>
+                    <div style="position:absolute; top:85px; left:20px; right:20px; height:8px; border-radius:4px; background:linear-gradient(90deg, rgba(236,72,153,0.25), rgba(168,85,247,0.25));"></div>
+                    <div style="position:absolute; top:100px; left:20px; right:20px; height:6px; border-radius:3px; background:rgba(236,72,153,0.12);"></div>
+                    <div style="position:absolute; top:115px; left:20px; right:20px; height:6px; border-radius:3px; background:rgba(168,85,247,0.08);"></div>
+                    <div style="position:absolute; top:135px; left:20px; width:80px; height:4px; border-radius:2px; background:linear-gradient(90deg, rgba(236,72,153,0.2), rgba(236,72,153,0.05));"></div>
+                    <div style="position:absolute; bottom:20px; right:20px; width:40px; height:40px; border-radius:8px; background:linear-gradient(135deg, rgba(236,72,153,0.15), rgba(168,85,247,0.15)); border:1px solid rgba(236,72,153,0.2);"></div>
+                </div>
+            </div>
+            <div class="card-content">
+                <div class="card-tag" id="tag4">Women's Style</div>
+                <h3 class="card-title" id="title4">Женский вариант</h3>
+                <p class="card-desc" id="desc4">Элегантный дизайн с мягкими градиентами и изящными деталями. Идеально подходит для женских профилей.</p>
+                <div class="card-footer">
+                    <span class="card-tag">HTML / CSS</span>
+                    <div class="card-arrow">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Contact CTA -->
+    <div class="contact-section">
+        <h2 class="contact-title" id="contact-title">Готовы заказать визитку?</h2>
+        <p class="contact-desc" id="contact-desc">Выберите понравившийся шаблон и свяжитесь с нами для оформления заказа и настройки под вас.</p>
+        <div class="contact-actions">
+            <!-- Telegram Link -->
+            <a href="https://t.me/azamat_NFC" class="btn btn-tg" target="_blank" id="btn-tg">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.654-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.94z"/>
+                </svg>
+                <span id="btn-tg-text">Написать в Telegram: @azamat_NFC</span>
+            </a>
+            
+            <!-- Phone Link -->
+            <a href="tel:+998936917051" class="btn btn-phone" id="btn-phone">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                </svg>
+                <span id="btn-phone-text">Позвонить: +998 93 691 70 51</span>
+            </a>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let currentLang = 'ru';
+    let isDarkTheme = true;
+
+    const translations = {
+        ru: {
+            langBtn: 'UZB',
+            themeBtn: 'LIGHT',
+            badge: 'Каталог Дизайнов',
+            title: 'NFC Визитки',
+            subtitle: 'Выберите современный дизайн для вашей электронной визитки. Все варианты легко кастомизируются под ваши данные (фото, ссылки, цвета).',
+            tag1: 'Dark & Neon',
+            title1: 'Основной вариант',
+            desc1: 'Строгий темный дизайн со стеклянным эффектом и градиентными свечениями. Идеален для руководителей.',
+            tag2: 'Classic Light',
+            title2: 'Вариант 2',
+            desc2: 'Яркий светлый вариант для тех, кто предпочитает классику и легкость восприятия.',
+            tag3: 'Vibrant Creative',
+            title3: 'Вариант 3',
+            desc3: 'Смелый, градиентный дизайн с неоновыми эффектами. Подчеркнет вашу креативность и современный подход.',
+            tag4: "Women's Style",
+            title4: 'Женский вариант',
+            desc4: 'Элегантный дизайн с мягкими градиентами и изящными деталями. Идеально подходит для женских профилей.',
+            contactTitle: 'Готовы заказать визитку?',
+            contactDesc: 'Выберите понравившийся шаблон и свяжитесь с нами для оформления заказа и настройки под вас.',
+            btnTgText: 'Написать в Telegram: @azamat_NFC',
+            btnPhoneText: 'Позвонить: +998 93 691 70 51'
+        },
+        uz: {
+            langBtn: 'RU',
+            themeBtn: 'DARK',
+            badge: 'Dizayn Katalogi',
+            title: 'NFC Vizitka',
+            subtitle: "O'zingizning elektron vizitka uchun zamonaviy dizaynni tanlang. Barcha variantlar oson tarzda rasm, havolalar, ranglar uchun sozlanadi.",
+            tag1: 'Dark & Neon',
+            title1: 'Asosiy variant',
+            desc1: "Shisha effekti va gradient uchqunlik bilan qat'iy qorong'u dizayn. Rahbarlar uchun ideal.",
+            tag2: 'Classic Light',
+            title2: 'Variant 2',
+            desc2: "Klassik va yengil idrokni afzal ko'radigan uchun yorqin yorug' variant.",
+            tag3: 'Vibrant Creative',
+            title3: 'Variant 3',
+            desc3: "Jasur, gradient dizayn neon effektlari bilan. Sizning ijodiyligingiz va zamonaviy yondashuvingizni ta'kidlaydi.",
+            tag4: "Women's Style",
+            title4: 'Ayollar varianti',
+            desc4: 'Yumshoq gradiyentlar va nogʻin detallar bilan oʻtkinchi dizayn. Ayollar profilllari uchun ideal.',
+            contactTitle: 'Vizitka buyurtma qilishga tayyormi?',
+            contactDesc: "Sizga yoqqan shablonni tanlang va buyurtma raqamini rasmiylashtirish va sizga moslash uchun biz bilan bog'lanish.",
+            btnTgText: "Telegram'da yozing: @azamat_NFC",
+            btnPhoneText: "Qo'ng'iroq qiling: +998 93 691 70 51"
+        }
+    };
+
+    function toggleTheme() {
+        isDarkTheme = !isDarkTheme;
+        const html = document.documentElement;
+        if (isDarkTheme) {
+            html.classList.remove('light-theme');
+        } else {
+            html.classList.add('light-theme');
+        }
+        updateThemeButton();
+        localStorage.setItem('theme', isDarkTheme ? 'dark' : 'light');
+    }
+
+    function toggleLanguage() {
+        currentLang = currentLang === 'ru' ? 'uz' : 'ru';
+        updateLanguage();
+        localStorage.setItem('language', currentLang);
+    }
+
+    function updateThemeButton() {
+        const themeText = document.getElementById('themeText');
+        if (isDarkTheme) {
+            themeText.textContent = 'LIGHT';
+        } else {
+            themeText.textContent = 'DARK';
+        }
+    }
+
+    function updateLanguage() {
+        const lang = translations[currentLang];
+
+        document.getElementById('langText').textContent = lang.langBtn;
+        document.getElementById('badge').textContent = lang.badge;
+        document.getElementById('title').textContent = lang.title;
+        document.getElementById('subtitle').textContent = lang.subtitle;
+        document.getElementById('tag1').textContent = lang.tag1;
+        document.getElementById('title1').textContent = lang.title1;
+        document.getElementById('desc1').textContent = lang.desc1;
+        document.getElementById('tag2').textContent = lang.tag2;
+        document.getElementById('title2').textContent = lang.title2;
+        document.getElementById('desc2').textContent = lang.desc2;
+        document.getElementById('tag3').textContent = lang.tag3;
+        document.getElementById('title3').textContent = lang.title3;
+        document.getElementById('desc3').textContent = lang.desc3;
+        document.getElementById('tag4').textContent = lang.tag4;
+        document.getElementById('title4').textContent = lang.title4;
+        document.getElementById('desc4').textContent = lang.desc4;
+        document.getElementById('contact-title').textContent = lang.contactTitle;
+        document.getElementById('contact-desc').textContent = lang.contactDesc;
+        document.getElementById('btn-tg-text').textContent = lang.btnTgText;
+        document.getElementById('btn-phone-text').textContent = lang.btnPhoneText;
+
+        document.documentElement.lang = currentLang;
+    }
+
+    // Инициализация при загрузке
+    window.addEventListener('load', function() {
+        // Загрузить сохраненную тему
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            isDarkTheme = false;
+            document.documentElement.classList.add('light-theme');
+            updateThemeButton();
+        }
+
+        // Загрузить сохраненный язык
+        const savedLang = localStorage.getItem('language');
+        if (savedLang) {
+            currentLang = savedLang;
+        }
+
+        updateLanguage();
+    });
+</script>
+
+</body>
+</html>
